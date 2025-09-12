@@ -1,0 +1,6 @@
+<div *ngIf="editorUrl; else loading" style="width: 100%; height: 900px;">
+  <iframe [src]="editorUrl" width="100%" height="100%"></iframe>
+</div>
+<ng-template #loading>
+  <p>Loading editor...</p>
+</ng-template>
