@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { File } from '../files/file.entity';
 import { ConfigService } from '@nestjs/config';
-import * as S3 from 'aws-sdk/clients/s3';
+import { S3 } from 'aws-sdk';
 
 @Injectable()
 export class WopiService {
@@ -20,7 +20,7 @@ export class WopiService {
       accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID'),
       secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY'),
     });
-    this.bucketName = this.configService.get<string>('S3_BUCKET_NAME');
+    this.bucketName = this.configService.get<string>('S3_BUCKET_NAME') as string;
   }
 
   async checkFileInfo(fileId: string, userId: string) {

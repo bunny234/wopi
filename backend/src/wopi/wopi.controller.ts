@@ -28,7 +28,7 @@ export class WopiController {
   @UseGuards(JwtAuthGuard)
   async getFile(
     @Param('id') id: string,
-    @Res() res: Response,
+    @Res() res: any,
   ) {
     const fileStream = await this.wopiService.getFile(id);
     res.setHeader('Content-Disposition', 'attachment; filename="report.docx"');

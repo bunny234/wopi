@@ -18,9 +18,9 @@ import { ReportModule } from './report/report.module';
         type: 'mysql',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
+        username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
+        database: configService.get<string>('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // Shouldn't be used in production
       }),

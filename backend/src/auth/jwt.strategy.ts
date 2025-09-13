@@ -9,13 +9,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      // use a getter instead of directly calling inside super()
+      secretOrKey: configService.get<string>('JWT_SECRET') || 'default_secret',
     });
   }
 
   async validate(payload: any) {
-    // In a real app, you might do a database lookup here to find the user.
-    // For this example, we'll just return the payload.
     return { userId: payload.sub, username: payload.username };
   }
 }
