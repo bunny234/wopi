@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WopiService } from './wopi.service';
 import { WopiController } from './wopi.controller';
-import { File } from '../files/file.entity';
-import { AuthModule } from '../auth/auth.module';
+import { Report } from '../reports/report.entity';
+import { WopiStrategy } from './wopi.strategy';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([File]), AuthModule],
-  providers: [WopiService],
+  imports: [TypeOrmModule.forFeature([Report]), ConfigModule],
+  providers: [WopiService, WopiStrategy],
   controllers: [WopiController],
 })
 export class WopiModule {}

@@ -1,14 +1,21 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Post, Param, UseGuards, Request, Get } from '@nestjs/common';
 import { ReportService } from './report.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('reports')
+@UseGuards(JwtAuthGuard)
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
-  @Get(':id/editSession')
-  async getEditSession(@Param('id') id: string) {
-    // In a real application, you would get the userId from the authenticated user's session
-    const userId = 'doctor-123'; // Hardcoded for this example
+  @Get()
+  async getReports(@Request() req) {
+    const userId = req.user.id;
+    return this.reportService.getReportsForUser(userId);
+  }
+
+  @Post(':id/editSession')
+  async getEditSession(@Param('id') id: string, @Request() req) {
+    const userId = req.user.id;
     return this.reportService.getEditSession(id, userId);
   }
 }

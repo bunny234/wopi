@@ -3,10 +3,10 @@ import { ReportController } from './report.controller';
 import { ReportService } from './report.service';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { File } from '../files/file.entity';
+import { Report } from './report.entity';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([File])],
+  imports: [AuthModule, TypeOrmModule.forFeature([Report])],
   controllers: [ReportController],
   providers: [ReportService],
 })

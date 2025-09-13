@@ -7,40 +7,39 @@ import {
   UseGuards,
   Req,
   Res,
+  ForbiddenException,
 } from '@nestjs/common';
 import { WopiService } from './wopi.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // I will create this guard next
+import { WopiGuard } from './wopi.guard';
 import { Response } from 'express';
 
 @Controller('wopi/files')
+@UseGuards(WopiGuard)
 export class WopiController {
   constructor(private readonly wopiService: WopiService) {}
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   async checkFileInfo(@Param('id') id: string, @Req() req) {
-    // The user information is available in req.user thanks to JwtStrategy
     const userId = req.user.userId;
     return this.wopiService.checkFileInfo(id, userId);
   }
 
   @Get(':id/contents')
-  @UseGuards(JwtAuthGuard)
-  async getFile(
-    @Param('id') id: string,
-    @Res() res: any,
-  ) {
+  async getFile(@Param('id') id: string, @Res() res: Response) {
     const fileStream = await this.wopiService.getFile(id);
-    res.setHeader('Content-Disposition', 'attachment; filename="report.docx"');
+    // Note: The WOPI client expects a file stream. Don't set Content-Disposition.
     fileStream.pipe(res);
   }
 
   @Post(':id/contents')
-  @UseGuards(JwtAuthGuard)
   async updateFile(
     @Param('id') id: string,
     @Body() fileContent: Buffer,
+    @Req() req,
   ) {
+    if (!req.user.canWrite) {
+      throw new ForbiddenException('User does not have write permissions for this file.');
+    }
     return this.wopiService.updateFile(id, fileContent);
   }
 }

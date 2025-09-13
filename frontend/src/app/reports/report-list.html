@@ -1,0 +1,17 @@
+<div class="report-list-container">
+  <h2>Your Case Reports</h2>
+  <div *ngIf="reports$ | async as reports; else loading">
+    <ul *ngIf="reports.length > 0; else noReports">
+      <li *ngFor="let report of reports">
+        <span>{{ report.title }}</span>
+        <a [routerLink]="['/editor', report.id]">Edit</a>
+      </li>
+    </ul>
+    <ng-template #noReports>
+      <p>You have no case reports.</p>
+    </ng-template>
+  </div>
+  <ng-template #loading>
+    <p>Loading reports...</p>
+  </ng-template>
+</div>

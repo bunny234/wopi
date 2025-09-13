@@ -1,7 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ReportService, EditSession } from '../services/report';
+import { ActivatedRoute } from '@angular/router';
+import { ReportService } from '../services/report.service';
+import { EditSession } from '../models/edit-session.model';
 import { CommonModule } from '@angular/common';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-editor',
@@ -13,15 +16,28 @@ import { CommonModule } from '@angular/common';
 export class EditorComponent implements OnInit {
   private reportService = inject(ReportService);
   private sanitizer = inject(DomSanitizer);
+  private route = inject(ActivatedRoute);
 
   editorUrl: SafeResourceUrl | null = null;
-  private oosDomain = 'https://oos.myhealthdomain.com'; // This should be in an environment file
+  // This should be configured in an environment-specific file
+  private oosDomain = 'https://wopi.rctiplus.com';
 
   ngOnInit(): void {
-    const reportId = '1'; // Hardcoded for this example
-    this.reportService.getEditSession(reportId).subscribe((session: EditSession) => {
-      const url = `${this.oosDomain}/we/wordeditorframe.aspx?WOPISrc=${session.wopiSrc}&access_token=${session.accessToken}`;
-      this.editorUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const reportId = params.get('id');
+        if (!reportId) {
+          throw new Error('Report ID not found in route');
+        }
+        return this.reportService.getEditSession(reportId);
+      })
+    ).subscribe({
+      next: (session: EditSession) => {
+        const encodedWopiSrc = encodeURIComponent(session.wopiSrc);
+        const url = `${this.oosDomain}/we/wordeditorframe.aspx?WOPISrc=${encodedWopiSrc}&access_token=${session.accessToken}`;
+        this.editorUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      },
+      error: (err) => console.error('Failed to get edit session:', err)
     });
   }
 }

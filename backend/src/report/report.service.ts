@@ -1,34 +1,39 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { File } from '../files/file.entity';
+import { Report } from './report.entity';
 import { AuthService } from '../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ReportService {
   constructor(
-    @InjectRepository(File)
-    private readonly fileRepository: Repository<File>,
+    @InjectRepository(Report)
+    private readonly reportRepository: Repository<Report>,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
 
-  async getEditSession(fileId: string, userId: string) {
-    const file = await this.fileRepository.findOne({ where: { id: parseInt(fileId, 10) } });
-    if (!file) {
-      throw new NotFoundException('File not found');
+  async getReportsForUser(userId: number) {
+    return this.reportRepository.find({ where: { doctorId: userId } });
+  }
+
+  async getEditSession(fileId: string, userId: number) {
+    const report = await this.reportRepository.findOne({ where: { id: parseInt(fileId, 10) } });
+    if (!report) {
+      throw new NotFoundException('Report not found');
     }
 
-    // In a real app, you would check if the user has permission to edit this file
-    const userCanWrite = file.ownerId === userId;
+    // In a real app, you would have more complex permission logic
+    const userCanWrite = report.doctorId === userId;
 
-    const accessToken = await this.authService.generateWopiToken(userId, fileId, {
-      canWrite: userCanWrite,
-    });
+    const accessToken = await this.authService.generateWopiToken(
+      userId.toString(),
+      fileId,
+      userCanWrite,
+    );
 
-    // This should be the URL to your backend
-    const wopiAppUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
+    const wopiAppUrl = this.configService.get<string>('APP_URL');
     const wopiSrc = `${wopiAppUrl}/wopi/files/${fileId}`;
 
     return {
