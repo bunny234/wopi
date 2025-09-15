@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-login',
+  standalone: true,  // <-- make it standalone
+  imports: [CommonModule, ReactiveFormsModule],  // <-- add needed modules
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })

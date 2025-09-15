@@ -9,12 +9,14 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     super({
       jwtFromRequest: ExtractJwt.fromBodyField('refresh_token'),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_REFRESH_SECRET'),
+      secretOrKeyProvider: (request, rawJwtToken, done) => {
+        const secret = configService.get<string>('JWT_REFRESH_TOKEN_SECRET');
+        done(null, secret);
+      },
     });
   }
 
   async validate(payload: any) {
-    // The payload is already validated by passport, so we can just return it
     return { userId: payload.sub, email: payload.email, role: payload.role };
   }
 }

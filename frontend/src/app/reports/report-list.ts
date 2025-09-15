@@ -4,6 +4,9 @@ import { RouterModule } from '@angular/router';
 import { ReportService } from '../services/report.service';
 import { Report } from '../models/report.model'; // I will create this model next
 import { Observable } from 'rxjs';
+import { of } from 'rxjs';
+
+
 
 @Component({
   selector: 'app-report-list',
@@ -14,7 +17,7 @@ import { Observable } from 'rxjs';
 })
 export class ReportListComponent implements OnInit {
   private reportService = inject(ReportService);
-  reports$: Observable<Report[]>;
+  reports$: Observable<Report[]> = of([]);
 
   ngOnInit(): void {
     this.reports$ = this.reportService.getReports();

@@ -1,0 +1,2 @@
+This is a sample report file.
+Used for testing WOPI endpoints locally.

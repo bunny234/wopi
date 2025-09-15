@@ -16,6 +16,7 @@ export class ReportController {
   @Post(':id/editSession')
   async getEditSession(@Param('id') id: string, @Request() req) {
     const userId = req.user.id;
+    console.log(userId);
     return this.reportService.getEditSession(id, userId);
   }
 }

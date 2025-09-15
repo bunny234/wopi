@@ -41,12 +41,12 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('ACCESS_TOKEN_EXPIRATION'),
+        secret: this.configService.get<string>('JWT_SECRET_KEY'),
+        expiresIn: this.configService.get<string>('TOKEN_EXPIRES_IN'),
       }),
       refresh_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRATION'),
+        secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
       }),
     };
   }
@@ -55,8 +55,8 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('ACCESS_TOKEN_EXPIRATION'),
+        secret: this.configService.get<string>('JWT_SECRET_KEY'),
+        expiresIn: this.configService.get<string>('TOKEN_EXPIRES_IN'),
       }),
     };
   }
@@ -71,6 +71,12 @@ export class AuthService {
       fileId: fileId,
       canWrite: canWrite,
     };
+    // console.log(payload);
+    const secret = this.configService.get<string>('WOPI_JWT_SECRET');
+
+  if (!secret) {
+    throw new Error('WOPI_JWT_SECRET environment variable is not defined!');
+  }
     return this.jwtService.sign(payload, {
       secret: this.configService.get<string>('WOPI_JWT_SECRET'),
       expiresIn: this.configService.get<string>('WOPI_TOKEN_EXPIRATION'),

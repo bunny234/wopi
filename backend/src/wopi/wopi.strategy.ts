@@ -9,12 +9,19 @@ export class WopiStrategy extends PassportStrategy(Strategy, 'wopi') {
     super({
       jwtFromRequest: ExtractJwt.fromUrlQueryParameter('access_token'),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('WOPI_JWT_SECRET'),
+      secretOrKeyProvider: (request, rawJwtToken, done) => {
+        const secret = configService.get<string>('WOPI_JWT_SECRET');
+        done(null, secret);
+      },
     });
   }
 
   async validate(payload: any) {
-    // The payload contains userId, fileId, and canWrite
-    return { userId: payload.sub, fileId: payload.fileId, canWrite: payload.canWrite };
+    // console.log(payload);
+    return {
+      userId: payload.sub,
+      fileId: payload.fileId,
+      canWrite: payload.canWrite,
+    };
   }
 }
