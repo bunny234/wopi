@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Report } from 'src/reports/report.entity';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ReportService {
@@ -12,19 +13,22 @@ export class ReportService {
     private readonly reportRepository: Repository<Report>,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async getReportsForUser(userId: number) {
     return this.reportRepository.find({ where: { doctorId: userId } });
   }
 
+
   async getEditSession(fileId: string, userId: number) {
-    const report = await this.reportRepository.findOne({ where: { id: parseInt(fileId, 10) } });
+    const report = await this.reportRepository.findOne({
+      where: { id: parseInt(fileId, 10) },
+    });
+
     if (!report) {
       throw new NotFoundException('Report not found');
     }
 
-    // In a real app, you would have more complex permission logic
     const userCanWrite = report.doctorId === userId;
 
     const accessToken = await this.authService.generateWopiToken(
@@ -33,12 +37,18 @@ export class ReportService {
       userCanWrite,
     );
 
-    const wopiAppUrl = this.configService.get<string>('APP_URL');
-    const wopiSrc = `${wopiAppUrl}/wopi/files/${fileId}`;
+    const appUrl = this.configService.get<string>('APP_URL');
+    const wopiSrc = `${appUrl}/wopi/files/${fileId}`;
 
-    return {
-      wopiSrc,
-      accessToken,
-    };
+    // 🚨 NO SIGNATURE FOR M365 CLOUD
+    const editorUrl =
+      `https://word-edit.officeapps.live.com/we/wordeditorframe.aspx?` +
+      `WOPISrc=${encodeURIComponent(wopiSrc)}` +
+      `&access_token=${encodeURIComponent(accessToken)}`;
+
+    return { editorUrl };
   }
+
+
+
 }

@@ -25,8 +25,8 @@ export class WopiService {
     this.bucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME') as string;
   }
 
-  async getFileMetaData (id:string){
-    return  this.reportRepository.findOne({
+  async getFileMetaData(id: string) {
+    return this.reportRepository.findOne({
       where: { id: parseInt(id, 10) },
     });
   }
@@ -62,22 +62,20 @@ export class WopiService {
 
     return {
       BaseFileName: baseFileName,
+
       OwnerId: report.doctorId.toString(),
       UserId: userId,
+      UserFriendlyName: 'User ' + userId,
+
       Size: head.ContentLength || 0,
       Version: report.version.toString(),
-      SHA256: sha256,
-      FileExtension: `.${fileExtension}`,
-      LastModifiedTime: head.LastModified?.toISOString() || new Date().toISOString(),
+
       UserCanWrite: userCanWrite,
-      SupportsLocks: true,
+      ReadOnly: !userCanWrite,
+
       SupportsUpdate: userCanWrite,
-      UserCanNotWriteRelative: true,
-      DisablePrint: true,
-      DisableExport: true,
-      DisableCopy: true,
-      UserFriendlyName: `User ${userId}`, // Optional: customize based on user data
     };
+
   }
 
   async getFile(fileId: string): Promise<Readable> {

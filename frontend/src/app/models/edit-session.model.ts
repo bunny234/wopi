@@ -1,4 +1,6 @@
 export interface EditSession {
-  wopiSrc: string;
+  editorUrl: any;
+  // editorUrl(arg0: string, editorUrl: any): unknown;
+  editorUrlwopiSrc: string;
   accessToken: string;
 }
