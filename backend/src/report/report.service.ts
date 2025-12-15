@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Report } from 'src/reports/report.entity';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class ReportService {
@@ -40,11 +39,17 @@ export class ReportService {
     const appUrl = this.configService.get<string>('APP_URL');
     const wopiSrc = `${appUrl}/wopi/files/${fileId}`;
 
-    // 🚨 NO SIGNATURE FOR M365 CLOUD
+    // Office Online edit URL with proper parameters
     const editorUrl =
       `https://word-edit.officeapps.live.com/we/wordeditorframe.aspx?` +
       `WOPISrc=${encodeURIComponent(wopiSrc)}` +
-      `&access_token=${encodeURIComponent(accessToken)}`;
+      `&access_token=${encodeURIComponent(accessToken)}` +
+      `&ui=en-US` +
+      `&rs=en-US` +
+      `&dchat=1` +
+      `&hid=0` +
+      `&IsLicensedUser=1` +
+      `&actnavid=0`;
 
     return { editorUrl };
   }

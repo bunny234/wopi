@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -39,24 +39,31 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
+    
+    const jwtSecret = this.configService.get<string>('JWT_SECRET_KEY');
+    const refreshSecret = this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET');
+    
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET_KEY'),
-        expiresIn: this.configService.get<string>('TOKEN_EXPIRES_IN'),
+        secret: jwtSecret,
+        expiresIn: 3600, // 1 hour
       }),
       refresh_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+        secret: refreshSecret,
+        expiresIn: 604800, // 7 days
       }),
     };
   }
 
   async refreshToken(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
+    
+    const jwtSecret = this.configService.get<string>('JWT_SECRET_KEY');
+    
     return {
       access_token: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET_KEY'),
-        expiresIn: this.configService.get<string>('TOKEN_EXPIRES_IN'),
+        secret: jwtSecret,
+        expiresIn: 3600, // 1 hour
       }),
     };
   }
@@ -74,12 +81,13 @@ export class AuthService {
     // console.log(payload);
     const secret = this.configService.get<string>('WOPI_JWT_SECRET');
 
-  if (!secret) {
-    throw new Error('WOPI_JWT_SECRET environment variable is not defined!');
-  }
+    if (!secret) {
+      throw new Error('WOPI_JWT_SECRET environment variable is not defined!');
+    }
+    
     return this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('WOPI_JWT_SECRET'),
-      expiresIn: this.configService.get<string>('WOPI_TOKEN_EXPIRATION'),
+      secret: secret,
+      expiresIn: 3600, // 1 hour
     });
   }
 }
